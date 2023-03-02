@@ -9,6 +9,7 @@ import {
 import tailwind from './styles/tailwind-build.css';
 import favicon from '../public/favicon.svg';
 import {Layout} from './components/Layout';
+import {Seo} from '@shopify/hydrogen';
 
 export const links = () => {
   return [
@@ -45,6 +46,7 @@ export default function App() {
       <head>
         <Meta />
         <Links />
+        <Seo />
       </head>
       <body>
         <Layout title={name}>
