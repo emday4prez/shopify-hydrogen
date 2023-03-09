@@ -5,18 +5,32 @@ import {
   useTransition,
 } from '@remix-run/react';
 
-export default function ProductOptions({options}) {
-  const transition = useTransition();
-
+export default function ProductOptions({options, selectedVariant}) {
   const {pathname, search} = useLocation();
   const [currentSearchParams] = useSearchParams();
+  const transition = useTransition();
+
+  const paramsWithDefaults = (() => {
+    const defaultParams = new URLSearchParams(currentSearchParams);
+
+    if (!selectedVariant) {
+      return defaultParams;
+    }
+
+    for (const {name, value} of selectedVariant.selectedOptions) {
+      if (!currentSearchParams.has(name)) {
+        defaultParams.set(name, value);
+      }
+    }
+
+    return defaultParams;
+  })();
 
   // Update the in-flight request data from the 'transition' (if available)
-  // to create an optimistic UI that selects a link before the request completes
+  // to create an optimistic UI that selects a link before the request is completed
   const searchParams = transition.location
     ? new URLSearchParams(transition.location.search)
-    : currentSearchParams;
-
+    : paramsWithDefaults;
   return (
     <div className="grid gap-4 mb-6">
       {options.map((option) => {
