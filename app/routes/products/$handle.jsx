@@ -92,13 +92,7 @@ export default function ProductHandle() {
                 variantIds={[selectedVariant?.id]}
                 width={'400px'}
               />
-              <div className="space-y-2">
-                <ShopPayButton
-                  variantIds={[selectedVariant?.id]}
-                  width={'400px'}
-                />
-                <ProductForm variantId={selectedVariant?.id} />
-              </div>
+              <ProductForm variantId={selectedVariant?.id} />
             </div>
           )}
           <div
