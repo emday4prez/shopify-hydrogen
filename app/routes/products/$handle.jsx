@@ -1,6 +1,6 @@
 import {json} from 'react-router';
 import {useLoaderData} from '@remix-run/react';
-import {MediaFile} from '@shopify/hydrogen-react';
+import {MediaFile, Money, ShopPayButton} from '@shopify/hydrogen-react';
 import ProductOptions from '~/components/ProductOptions';
 
 export const loader = async ({params, context, request}) => {
@@ -23,14 +23,18 @@ export const loader = async ({params, context, request}) => {
   if (!product?.id) {
     throw new Response(null, {status: 404});
   }
+  const selectedVariant =
+    product.selectedVariant ?? product?.variants?.nodes[0];
 
   return json({
     product,
+    selectedVariant,
   });
 };
 
 export default function ProductHandle() {
-  const {product} = useLoaderData();
+  const {product, selectedVariant} = useLoaderData();
+  const orderable = selectedVariant?.availableForSale || false;
 
   return (
     <section className="w-full gap-4 md:gap-8 grid px-6 md:px-8 lg:px-12">
@@ -49,8 +53,24 @@ export default function ProductHandle() {
               {product.vendor}
             </span>
           </div>
-          <ProductOptions options={product.options} />
-
+          <ProductOptions
+            options={product.options}
+            selectedVariant={selectedVariant}
+          />
+          <Money
+            withoutTrailingZeros
+            data={selectedVariant.price}
+            className="text-xl font-semibold mb-2"
+          />
+          {orderable && (
+            <div className="space-y-2">
+              <ShopPayButton
+                variantIds={[selectedVariant?.id]}
+                width={'400px'}
+              />
+              {/* TODO product form */}
+            </div>
+          )}
           <div
             className="prose border-t border-gray-200 pt-6 text-black text-md"
             dangerouslySetInnerHTML={{__html: product.descriptionHtml}}
@@ -208,12 +228,3 @@ const PRODUCT_QUERY = `#graphql
     }
   }
 `;
-
-function PrintJson({data}) {
-  return (
-    <details className="outline outline-2 outline-blue-300 p-4 my-2">
-      <summary>Product JSON</summary>
-      <pre>{JSON.stringify(data, null, 2)}</pre>
-    </details>
-  );
-}
